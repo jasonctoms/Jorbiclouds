@@ -22,7 +22,7 @@ class WeatherAdapter(
     override fun onBindViewHolder(holder: WeatherHolder, position: Int) {
         val item = items[position]
         holder.time.text = item.timeSpan
-        holder.temperature.text = item.temp.toString()
+        holder.temperature.text = item.temp.toString() + "°"
         holder.minPrecipitation.text = item.minPrecip.toString()
         holder.maxPrecipitation.text = item.maxPrecip.toString()
         holder.windSpeed.text = item.windSpeed.toString()

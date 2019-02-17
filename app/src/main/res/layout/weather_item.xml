@@ -16,7 +16,8 @@
             app:layout_constraintBottom_toBottomOf="@+id/weatherIcon"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintEnd_toStartOf="@+id/weatherIcon"
-            app:layout_constraintHorizontal_chainStyle="spread"/>
+            app:layout_constraintHorizontal_chainStyle="spread"
+            android:textSize="15sp"/>
 
     <ImageView
             android:layout_width="40dp"
@@ -44,7 +45,10 @@
             android:layout_marginBottom="8dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/minPrecip"
-            app:layout_constraintHorizontal_bias="0.5"/>
+            app:layout_constraintHorizontal_bias="0.5"
+            android:textSize="15sp"
+            android:textColor="@color/colorAccent"
+            android:textStyle="bold"/>
 
     <TextView
             android:layout_width="wrap_content"
@@ -58,7 +62,9 @@
             android:layout_marginBottom="8dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintEnd_toStartOf="@+id/hyphen"/>
+            app:layout_constraintEnd_toStartOf="@+id/hyphen"
+            android:textSize="15sp"
+            android:textColor="@color/colorPrimaryDark"/>
 
     <TextView
             android:text="-"
@@ -72,7 +78,8 @@
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintEnd_toStartOf="@+id/maxPrecip"
-            />
+            android:textSize="15sp"
+            android:textColor="@color/colorPrimaryDark"/>
 
     <TextView
             android:layout_width="wrap_content"
@@ -86,7 +93,8 @@
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintEnd_toStartOf="@+id/mm"
-            />
+            android:textSize="15sp"
+            android:textColor="@color/colorPrimaryDark"/>
 
     <TextView
             android:layout_width="wrap_content"
@@ -100,7 +108,8 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintEnd_toStartOf="@+id/windSpeed"
-            />
+            android:textSize="15sp"
+            android:textColor="@color/colorPrimaryDark"/>
 
     <TextView
             android:layout_width="wrap_content"
@@ -114,18 +123,20 @@
             app:layout_constraintStart_toEndOf="@+id/mm"
             android:layout_marginStart="24dp"
             app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintEnd_toStartOf="@+id/windUnit"/>
+            app:layout_constraintEnd_toStartOf="@+id/windUnit"
+            android:textSize="15sp"/>
 
     <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/windUnit"
-            tools:text="m/s"
             app:layout_constraintStart_toEndOf="@+id/windSpeed"
             android:layout_marginBottom="8dp"
             app:layout_constraintBottom_toBottomOf="parent"
             android:layout_marginTop="8dp"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintEnd_toEndOf="parent"/>
+            app:layout_constraintEnd_toEndOf="parent"
+            android:text="m/s"
+            android:textSize="15sp"/>
 </androidx.constraintlayout.widget.ConstraintLayout>

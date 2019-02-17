@@ -77,6 +77,8 @@ class WeatherViewModel : ViewModel() {
                 val tomorrow = JorbicloudsDay(LocalDateTime.now().plusDays(1).format(formatter), mutableListOf())
                 val twoDaysFromNowDay = LocalDateTime.now().plusDays(2).dayOfYear
                 val twoDaysFromNow = JorbicloudsDay(LocalDateTime.now().plusDays(2).format(formatter), mutableListOf())
+                val threeDaysFromNowDay = LocalDateTime.now().plusDays(3).dayOfYear
+                val threeDaysFromNow = JorbicloudsDay(LocalDateTime.now().plusDays(3).format(formatter), mutableListOf())
                 result.longIntervals.forEach {
                     val start = ZonedDateTime.parse(it.start)
                     val end = ZonedDateTime.parse(it.end)
@@ -85,9 +87,10 @@ class WeatherViewModel : ViewModel() {
                         start.dayOfYear == todayDay -> today.weatherEntries.add(entry)
                         start.dayOfYear == tomorrowDay -> tomorrow.weatherEntries.add(entry)
                         start.dayOfYear == twoDaysFromNowDay -> twoDaysFromNow.weatherEntries.add(entry)
+                        start.dayOfYear == threeDaysFromNowDay -> threeDaysFromNow.weatherEntries.add(entry)
                     }
                 }
-                val days = listOf(today, tomorrow, twoDaysFromNow)
+                val days = listOf(today, tomorrow, twoDaysFromNow, threeDaysFromNow)
                 jorbicloudsDays.postValue(days)
             }
         }
