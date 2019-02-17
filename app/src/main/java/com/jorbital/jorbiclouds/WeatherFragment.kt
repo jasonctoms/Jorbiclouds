@@ -1,6 +1,8 @@
 package com.jorbital.jorbiclouds
 
+import android.Manifest
 import android.content.Context
+import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
 import android.view.*
@@ -12,15 +14,18 @@ import kotlinx.android.synthetic.main.fragment_weather.*
 import androidx.appcompat.app.AppCompatActivity
 import android.view.MenuInflater
 import androidx.appcompat.widget.SearchView
+import androidx.core.app.ActivityCompat
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
-
+import com.google.android.gms.location.*
 
 class WeatherFragment : Fragment() {
+    private lateinit var fusedLocationClient: FusedLocationProviderClient
+    private lateinit var locationCallback: LocationCallback
 
-    lateinit var searchItem: MenuItem
-    lateinit var viewModel: WeatherViewModel
+    private lateinit var searchItem: MenuItem
+    private lateinit var viewModel: WeatherViewModel
 
     private fun toast(message: CharSequence) =
         Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
@@ -41,6 +46,18 @@ class WeatherFragment : Fragment() {
         viewModel.getJorbicloudsDays().observe(this, Observer<List<JorbicloudsDay>> { days ->
             updateDayAdapter(days)
         })
+
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(activity as MainActivity)
+
+        locationCallback = object : LocationCallback() {
+            override fun onLocationResult(locationResult: LocationResult?) {
+                locationResult ?: return
+                for (location in locationResult.locations) {
+                    doHttpCall { viewModel.getLocation("", location.latitude, location.longitude, 1000.0, "en") }
+                    fusedLocationClient.removeLocationUpdates(locationCallback)
+                }
+            }
+        }
     }
 
     override fun onCreateView(
@@ -75,8 +92,6 @@ class WeatherFragment : Fragment() {
 
         locationRv.layoutManager = LinearLayoutManager(context)
         weatherRv.layoutManager = LinearLayoutManager(context)
-
-        searchForCurrentLocation()
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -96,7 +111,6 @@ class WeatherFragment : Fragment() {
                 return false
             }
         })
-
         searchItem.setOnActionExpandListener(object : MenuItem.OnActionExpandListener {
             override fun onMenuItemActionCollapse(item: MenuItem?): Boolean {
                 locationRv.visibility = View.GONE
@@ -108,6 +122,14 @@ class WeatherFragment : Fragment() {
                 return true
             }
         })
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        if (item.itemId == R.id.current_location) {
+            getCurrentLocation()
+            return true
+        }
+        return super.onOptionsItemSelected(item)
     }
 
     private fun searchForLocation(query: String) {
@@ -127,12 +149,6 @@ class WeatherFragment : Fragment() {
     private fun locationSelected(location: YrLocation) {
         updateLocation(location)
         searchItem.collapseActionView()
-    }
-
-    private fun searchForCurrentLocation() {
-
-        //TODO: get current location for latlong
-        //doHttpCall { viewModel.getLocation("", 59.91273, 10.74609, 1000.0, "en") }
     }
 
     private fun updateLocation(location: YrLocation) {
@@ -157,6 +173,38 @@ class WeatherFragment : Fragment() {
         } catch (e: Throwable) {
             toast("Oops, something unknown went wrong!")
         }
+    }
+
+    private fun getCurrentLocation() {
+        val locationRequest = LocationRequest.create()
+            .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
+            .setInterval(10)
+
+        if (ActivityCompat.checkSelfPermission(
+                requireContext(),
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(
+                requireContext(),
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            requestLocationPermissions()
+            return
+        }
+        fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, null)
+    }
+
+
+    private fun requestLocationPermissions() {
+        requestPermissions(
+            arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION),
+            1
+        )
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        //TODO: handle if they deny the permission
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
     }
 
     /**
