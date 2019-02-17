@@ -2,5 +2,15 @@
     <string name="app_name">Jorbiclouds</string>
 
     <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="search">Search</string>
+    <string name="current_location">Current Location</string>
+
+    <string name="mm">mm</string>
+    <string name="wind_speed">Wind Speed</string>
+    <string name="wind_direction">Wind Direction</string>
+    <string name="pressure">Pressure</string>
+    <string name="humidity">Humidity</string>
+    <string name="dew_point">Dew Point</string>
+    <string name="precipitation">Precipitation</string>
+
 </resources>

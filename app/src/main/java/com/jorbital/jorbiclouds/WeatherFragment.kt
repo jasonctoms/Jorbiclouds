@@ -36,7 +36,10 @@ class WeatherFragment : Fragment() {
             updateLocation(location)
         })
         viewModel.getListOfLocations().observe(this, Observer<List<YrLocation>> { locations ->
-            updateAdapter(locations)
+            updateLocationAdapter(locations)
+        })
+        viewModel.getJorbicloudsDays().observe(this, Observer<List<JorbicloudsDay>> { days ->
+            updateDayAdapter(days)
         })
     }
 
@@ -69,9 +72,9 @@ class WeatherFragment : Fragment() {
     override fun onStart() {
         super.onStart()
         (activity as AppCompatActivity).setSupportActionBar(toolbar)
-        (activity as AppCompatActivity).supportActionBar?.title = "Jorbiclouds"
 
         locationRv.layoutManager = LinearLayoutManager(context)
+        weatherRv.layoutManager = LinearLayoutManager(context)
 
         searchForCurrentLocation()
     }
@@ -97,7 +100,7 @@ class WeatherFragment : Fragment() {
         searchItem.setOnActionExpandListener(object : MenuItem.OnActionExpandListener {
             override fun onMenuItemActionCollapse(item: MenuItem?): Boolean {
                 locationRv.visibility = View.GONE
-                weatherInfoLayout.visibility = View.VISIBLE
+                weatherRv.visibility = View.VISIBLE
                 return true
             }
 
@@ -108,34 +111,42 @@ class WeatherFragment : Fragment() {
     }
 
     private fun searchForLocation(query: String) {
-
         locationRv.visibility = View.VISIBLE
-        weatherInfoLayout.visibility = View.GONE
+        weatherRv.visibility = View.GONE
         doHttpCall { viewModel.searchLocation(query, null, null, null, "en") }
     }
 
-    private fun updateAdapter(locations: List<YrLocation>) {
+    private fun updateLocationAdapter(locations: List<YrLocation>) {
         if (locationRv.adapter == null) {
             locationRv.adapter =
                 LocationAdapter(locations, requireContext()) { _, location -> locationSelected(location) }
-        } else {
+        } else
             (locationRv.adapter as LocationAdapter).updateItems(locations)
-        }
     }
 
     private fun locationSelected(location: YrLocation) {
-        locationName.text = location.name
+        updateLocation(location)
         searchItem.collapseActionView()
     }
 
     private fun searchForCurrentLocation() {
 
         //TODO: get current location for latlong
-        doHttpCall { viewModel.getLocation("", 59.91273, 10.74609, 1000.0, "en") }
+        //doHttpCall { viewModel.getLocation("", 59.91273, 10.74609, 1000.0, "en") }
     }
 
     private fun updateLocation(location: YrLocation) {
-        locationName.text = location.name
+        (activity as AppCompatActivity).supportActionBar?.title = location.name
+        //TODO: add some progress spinner or something
+        doHttpCall { viewModel.getForecast(location.id) }
+    }
+
+    private fun updateDayAdapter(days: List<JorbicloudsDay>) {
+        if (weatherRv.adapter == null) {
+            weatherRv.adapter =
+                DayAdapter(days, requireContext()) { _, day -> toast("This would open details of " + day.date) }
+        } else
+            (weatherRv.adapter as DayAdapter).updateItems(days)
     }
 
     private fun doHttpCall(vmHttpMethod: () -> Unit) {

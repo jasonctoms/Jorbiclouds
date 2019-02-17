@@ -6,10 +6,11 @@ import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 import retrofit2.http.GET
+import retrofit2.http.Path
 import retrofit2.http.Query
 
 interface WeatherService {
-    @GET("locations/Search")
+    @GET("Search")
     fun searchLocationsAsync(
         @Query("q") q: String,
         @Query("lat") lat: Double?,
@@ -17,6 +18,11 @@ interface WeatherService {
         @Query("accuracy") accuracy: Double?,
         @Query("language") language: String
     ): Deferred<Response<LocationQuery>>
+
+    @GET("{id}/forecast")
+    fun getForecastAsync(
+        @Path("id") id: String
+    ): Deferred<Response<YrForecast>>
 }
 
 object WeatherFactory {

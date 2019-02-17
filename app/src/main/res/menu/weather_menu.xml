@@ -4,12 +4,12 @@
     <item
             android:id="@+id/location_search"
             android:icon="@drawable/ic_search_black_24dp"
-            android:title="Search"
+            android:title="@string/search"
             app:actionViewClass="androidx.appcompat.widget.SearchView"
             app:queryHint="Search"
             app:showAsAction="ifRoom|collapseActionView"/>
     <item
-            android:title="Current Location"
+            android:title="@string/current_location"
             app:showAsAction="ifRoom"
             android:id="@+id/current_location"
             android:icon="@drawable/ic_my_location_black_24dp"/>

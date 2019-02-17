@@ -37,5 +37,5 @@ class LocationAdapter(
 }
 
 class LocationHolder(view: View) : RecyclerView.ViewHolder(view) {
-    val locationName = view.locationName!!
+    val locationName = view.todayTitle!!
 }
