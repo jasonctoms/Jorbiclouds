@@ -6,21 +6,21 @@ import android.os.Bundle
 import android.view.*
 import androidx.fragment.app.Fragment
 import android.widget.Toast
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
 import retrofit2.HttpException
 
 import kotlinx.android.synthetic.main.fragment_weather.*
 import androidx.appcompat.app.AppCompatActivity
 import android.view.MenuInflater
 import androidx.appcompat.widget.SearchView
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
 
 
 class WeatherFragment : Fragment() {
 
     lateinit var searchItem: MenuItem
+    lateinit var viewModel: WeatherViewModel
 
     private fun toast(message: CharSequence) =
         Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
@@ -30,6 +30,14 @@ class WeatherFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
+        viewModel = ViewModelProviders.of(this).get(WeatherViewModel::class.java)
+        viewModel.init()
+        viewModel.getSelectedLocation().observe(this, Observer<YrLocation> { location ->
+            updateLocation(location)
+        })
+        viewModel.getListOfLocations().observe(this, Observer<List<YrLocation>> { locations ->
+            updateAdapter(locations)
+        })
     }
 
     override fun onCreateView(
@@ -40,7 +48,7 @@ class WeatherFragment : Fragment() {
     }
 
     // TODO: if i add any navigation, do it here
-    fun onButtonPressed(uri: Uri) {
+    fun navigationPressed(uri: Uri) {
         listener?.onFragmentInteraction(uri)
     }
 
@@ -73,9 +81,7 @@ class WeatherFragment : Fragment() {
         inflater.inflate(R.menu.weather_menu, menu)
         searchItem = menu.findItem(R.id.location_search)
         val searchView = searchItem.actionView as SearchView
-        //searchView.maxWidth = Integer.MAX_VALUE
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
-
             override fun onQueryTextChange(newText: String): Boolean {
                 if (newText.length > 2)
                     searchForLocation(newText)
@@ -86,7 +92,6 @@ class WeatherFragment : Fragment() {
                 searchForLocation(query)
                 return false
             }
-
         })
 
         searchItem.setOnActionExpandListener(object : MenuItem.OnActionExpandListener {
@@ -106,22 +111,7 @@ class WeatherFragment : Fragment() {
 
         locationRv.visibility = View.VISIBLE
         weatherInfoLayout.visibility = View.GONE
-
-        val service = WeatherFactory.makeWeatherService()
-        GlobalScope.launch(Dispatchers.Main) {
-            val request = service.searchLocationsAsync(query, null, null, null, "en")
-            try {
-                val response = request.await()
-                val result = response.body()
-                if (result != null) {
-                    updateAdapter(result._embedded.location)
-                }
-            } catch (e: HttpException) {
-                toast(e.code().toString())
-            } catch (e: Throwable) {
-                toast("Oops, something unknown went wrong!")
-            }
-        }
+        doHttpCall { viewModel.searchLocation(query, null, null, null, "en") }
     }
 
     private fun updateAdapter(locations: List<YrLocation>) {
@@ -141,22 +131,20 @@ class WeatherFragment : Fragment() {
     private fun searchForCurrentLocation() {
 
         //TODO: get current location for latlong
+        doHttpCall { viewModel.getLocation("", 59.91273, 10.74609, 1000.0, "en") }
+    }
 
-        val service = WeatherFactory.makeWeatherService()
-        GlobalScope.launch(Dispatchers.Main) {
-            val request = service.searchLocationsAsync("", 59.91273, 10.74609, 1000.0, "en")
-            try {
-                val response = request.await()
-                val result = response.body()
-                if (result != null) {
-                    val firstLocationName = result._embedded.location[0].name
-                    locationName.text = firstLocationName
-                }
-            } catch (e: HttpException) {
-                toast(e.code().toString())
-            } catch (e: Throwable) {
-                toast("Oops, something unknown went wrong!")
-            }
+    private fun updateLocation(location: YrLocation) {
+        locationName.text = location.name
+    }
+
+    private fun doHttpCall(vmHttpMethod: () -> Unit) {
+        try {
+            vmHttpMethod()
+        } catch (e: HttpException) {
+            toast(e.code().toString())
+        } catch (e: Throwable) {
+            toast("Oops, something unknown went wrong!")
         }
     }
 
